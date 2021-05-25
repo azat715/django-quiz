@@ -20,6 +20,8 @@ class QuizDTO(NamedTuple):
 
 
 class AnswerDTO(NamedTuple):
+    """choices list содержит список строк формата ChoiceDTO.uuid ["1-1-1"]"""
+
     question_uuid: str
     choices: List[str]
 
