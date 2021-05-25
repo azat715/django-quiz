@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "django-quiz"
+version = "0.1.0"
+description = "Приложение Quiz"
+authors = ["azat715 <azat715@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "3.2"
+pycodestyle = "2.7.0"
+djangorestframework = "^3.12.4"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b1"
+pylint = "^2.8.2"
+pytest = "^6.2.4"
+pytest-django = "^4.3.0"
+isort = "^5.8.0"
+pylint-django = "^2.4.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 99 # override black's default line-length
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | venv
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
