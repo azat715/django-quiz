@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
 from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
@@ -51,7 +51,9 @@ class QuestionChoice(models.Model):
 class AnswerQuiz(models.Model):
     """AnswersDTO  Database Model"""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answers_quiz")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="answers_quiz"
+    )
     quiz_uuid = models.CharField(max_length=10)
 
 
