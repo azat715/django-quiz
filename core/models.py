@@ -18,7 +18,7 @@ class Quiz(models.Model):
 
 
 class Question(models.Model):
-    """QuestionDTO  Database Model"""
+    """QuestionDTO Database Model"""
 
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
     uuid = models.CharField(max_length=10)
@@ -32,7 +32,7 @@ class Question(models.Model):
 
 
 class QuestionChoice(models.Model):
-    """ChoiceDTO  Database Model"""
+    """ChoiceDTO Database Model"""
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
     uuid = models.CharField(max_length=10)
@@ -49,23 +49,24 @@ class QuestionChoice(models.Model):
 
 
 class AnswerQuiz(models.Model):
-    """AnswersDTO  Database Model"""
+    """AnswersDTO Database Model"""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="answers_quiz"
     )
     quiz_uuid = models.CharField(max_length=10)
+    finished = models.BooleanField(default=False)
 
 
 class Answer(models.Model):
-    """AnswerDTO  Database Model"""
+    """AnswerDTO Database Model"""
 
     answer_quiz = models.ForeignKey(AnswerQuiz, on_delete=models.CASCADE, related_name="answers")
     question_uuid = models.CharField(max_length=10)
 
 
 class AnswerChoice(models.Model):
-    """AnswerDTO.choices  Database Model"""
+    """AnswerDTO.choices Database Model"""
 
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="answers")
     text = models.CharField(max_length=255)
