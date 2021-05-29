@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 
 from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
 
@@ -9,12 +10,18 @@ class Quiz(models.Model):
 
     uuid = models.CharField(max_length=10)
     title = models.CharField(max_length=50)
+    slug = models.SlugField(null=False, unique=True)
 
     @classmethod
     def create(cls, obj: QuizDTO):
         quiz = cls(uuid=obj.uuid, title=obj.title)
         quiz.save()
         return quiz
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
 
 class Question(models.Model):
