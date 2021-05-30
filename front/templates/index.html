@@ -1,0 +1,25 @@
+{% extends "./base.html" %}
+
+{% block content %}
+
+<div x-data="quizzes()" x-init="fetchQuizzes()" class="app">
+    <h4>Список викторин</h4>
+    <ul>
+        <template x-for="quizz in quizzes" :key="quizz.id">
+            <li>
+                <span x-text="quizz.title"></span>
+                <button>Начать</button>
+            </li>
+
+        </template>
+    </ul>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    const allQuizzes = "{% url 'core:get_quizzes_list' %}"
+</script>
+{% endblock %}
