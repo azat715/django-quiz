@@ -21,3 +21,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = "__all__"
+
+
+# class SelectQuizSerializer(serializers.Serializer):
+#     quiz_uuid = serializers.CharField(required=True, max_length=10)
