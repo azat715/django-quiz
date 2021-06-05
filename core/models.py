@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 
-from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
+from quiz.dto import AnswerDTO, ChoiceDTO, QuestionDTO, QuizDTO
 
 
 class Quiz(models.Model):
@@ -59,8 +59,8 @@ class Question(models.Model):
         question.save()
         return question
 
-    def get_DTO(self):
-        return QuestionDTO(self.uuid, self.text, [i.get_DTO() for i in self.choices.all()])
+    def astuple(self):
+        return QuestionDTO(self.uuid, self.text, [i.astuple() for i in self.choices.all()])
 
 
 class QuestionChoice(models.Model):
@@ -85,20 +85,15 @@ class QuestionChoice(models.Model):
         question_choice.save()
         return question_choice
 
-    def get_DTO(self):
+    def astuple(self):
         return ChoiceDTO(self.uuid, self.text, self.is_correct)
 
 
 class AnswerQuiz(models.Model):
     """AnswersDTO Database Model"""
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="answers_quiz"
-    )
-    quiz = models.OneToOneField(
-        Quiz,
-        on_delete=models.PROTECT,
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    quiz = models.OneToOneField(Quiz, on_delete=models.PROTECT, related_name="answers_quiz")
     score = models.FloatField(blank=True, null=True)
     finished = models.BooleanField(default=False)
 
@@ -126,14 +121,14 @@ class AnswerQuiz(models.Model):
         return (
             self.quiz.questions.unanswered(self.questions_uuid)  # pylint: disable=no-member
             .first()
-            .get_DTO()
+            .astuple()
         )
 
     def get_prev_question(self):
         return (
             self.quiz.questions.answered(self.questions_uuid)  # pylint: disable=no-member
             .last()
-            .get_DTO()
+            .astuple()
         )
 
     def post_answer(self, answer: AnswerDTO):

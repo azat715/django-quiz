@@ -11,9 +11,29 @@ from core.serializers import QuizSerializer
 
 @api_view()
 @authentication_classes([SessionAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_quizzes(request):
     queryset = Quiz.objects.all()
+    serializer = QuizSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+
+@api_view()
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_quizzes_started(request):
+    queryset = Quiz.objects.filter(answers_quiz__user=request.user)
+    serializer = QuizSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+
+@api_view()
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_quizzes_finished(request):
+    queryset = Quiz.objects.filter(answers_quiz__user=request.user).filter(
+        answers_quiz__finished=True
+    )
     serializer = QuizSerializer(queryset, many=True)
     return Response(serializer.data)
 
