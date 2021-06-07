@@ -105,34 +105,45 @@ class AnswerQuiz(models.Model):
 
     @property
     def questions_uuid(self):
-        return self.answers.values_list("answer_quiz")
+        return self.answers.values_list("question_uuid")
 
     @classmethod
-    def start_quiz(cls, user, slug_quiz):
+    def start_quiz(cls, user, uuid_quiz):
         try:
-            quiz = Quiz.objects.get(slug=slug_quiz)
+            quiz = Quiz.objects.get(uuid=uuid_quiz)
         except Quiz.DoesNotExist as e:  # pylint: disable=invalid-name
-            raise ValueError(f"slug_quiz: '{slug_quiz}' не является валидным") from e
+            raise ValueError(f"uuid_quiz: '{uuid_quiz}' не является валидным") from e
         instanse = cls(user=user, quiz=quiz)
         instanse.save()
         return instanse
 
-    def get_question(self):
-        return (
-            self.quiz.questions.unanswered(self.questions_uuid)  # pylint: disable=no-member
-            .first()
-            .astuple()
-        )
+    def get_question(self) -> QuestionDTO:
+        if self.quiz.questions.unanswered(self.questions_uuid).exists():
+            return (
+                self.quiz.questions.unanswered(self.questions_uuid)  # pylint: disable=no-member
+                .first()
+                .astuple()
+            )
+        else:
+            raise StopIteration("Вопросы кончились")
 
-    def get_prev_question(self):
+    def get_prev_question(self) -> QuestionDTO:
         return (
             self.quiz.questions.answered(self.questions_uuid)  # pylint: disable=no-member
             .last()
             .astuple()
         )
 
-    def post_answer(self, answer: AnswerDTO):
-        pass
+    def post_answer(self, obj: AnswerDTO):
+        answer = Answer.create(obj, self)
+        for choice in obj.choices:
+            instanse = AnswerChoice(text=choice, answer=answer)
+            instanse.save()
+        return answer
+
+    def update_prev_answer(self, obj: AnswerDTO):
+        Answer.objects.filter(answer_quiz=self).last().delete()
+        self.post_answer(obj)
 
 
 class Answer(models.Model):
@@ -148,18 +159,16 @@ class Answer(models.Model):
         return self.__repr__()
 
     @classmethod
-    def create(cls, obj: ChoiceDTO, question):
-        question_choice = cls(
-            uuid=obj.uuid, text=obj.text, is_correct=obj.is_correct, question=question
-        )
-        question_choice.save()
-        return question_choice
+    def create(cls, obj: AnswerDTO, answer_quiz):
+        answer = cls(answer_quiz=answer_quiz, question_uuid=obj.question_uuid)
+        answer.save()
+        return answer
 
 
 class AnswerChoice(models.Model):
     """AnswerDTO.choices Database Model"""
 
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="answers")
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="choices")
     text = models.CharField(max_length=255)
 
     def __repr__(self):

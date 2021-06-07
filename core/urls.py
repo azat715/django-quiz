@@ -1,11 +1,13 @@
 from django.urls import path
 
-from core.views import get_quizzes, get_quizzes_started, get_quizzes_finished
+from core.views import quizzes, quizzes_started, quizzes_finished, questions, questions_prev
 
 app_name = "core"
 
 urlpatterns = [
-    path("quizzes/", get_quizzes, name="quizzes_list"),
-    path("quizzes/started", get_quizzes_started, name="quizzes_list_started"),
-    path("quizzes/finished", get_quizzes_finished, name="quizzes_list_finished"),
+    path("quizzes/", quizzes, name="quizzes_list"),
+    path("quizzes/started", quizzes_started, name="quizzes_list_started"),
+    path("quizzes/finished", quizzes_finished, name="quizzes_list_finished"),
+    path("quizzes/<slug:slug>/question", questions, name="questions"),
+    path("quizzes/<slug:slug>/question/prev", questions_prev, name="questions_prev"),
 ]
