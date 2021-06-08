@@ -23,9 +23,11 @@
 
 function quizzes() {
   return {
+    tab: "all",
+    url: allQuizzes,
     quizzes: [],
     fetchQuizzes: function () {
-      fetch(allQuizzes)
+      fetch(this.url)
         .then(response => response.json())
         .then(data => {
           this.quizzes = data;

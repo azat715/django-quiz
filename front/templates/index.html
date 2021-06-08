@@ -2,17 +2,44 @@
 
 {% block content %}
 
-<div x-data="quizzes()" x-init="fetchQuizzes()" class="app">
+<div x-data="quizzes()" x-init="fetchQuizzes()" , class="app">
     <h4>Список викторин</h4>
-    <ul>
-        <template x-for="quizz in quizzes" :key="quizz.id">
-            <li>
-                <span x-text="quizz.title"></span>
-                <button>Начать</button>
-            </li>
+    <button @click="tab = 'all', url = allQuizzes, fetchQuizzes()">Все</button>
+    <button @click="tab = 'started'; url = startedQuizzes; fetchQuizzes()">Не законченные</button>
+    <button @click="tab = 'finished'; url = finishedQuizzes; fetchQuizzes()">Законченные</button>
+    <div x-show="tab === 'all'">
+        <ul>
+            <template x-for="quizz in quizzes" :key="quizz.id">
+                <li>
+                    <span x-text="quizz.title"></span>
+                    <button>Начать</button>
+                </li>
 
-        </template>
-    </ul>
+            </template>
+        </ul>
+    </div>
+    <div x-show="tab === 'started'">
+        <ul>
+            <template x-for="quizz in quizzes" :key="quizz.id">
+                <li>
+                    <span x-text="quizz.title"></span>
+                    <button>Продолжить</button>
+                </li>
+
+            </template>
+        </ul>
+    </div>
+    <div x-show="tab === 'finished'">
+        <ul>
+            <template x-for="quizz in quizzes" :key="quizz.id">
+                <li>
+                    <span x-text="quizz.title"></span>
+                </li>
+
+            </template>
+        </ul>
+    </div>
+
 
 </div>
 
@@ -20,6 +47,9 @@
 
 {% block javascript %}
 <script type="text/javascript">
-    const allQuizzes = "{% url 'core:get_quizzes_list' %}"
+    const allQuizzes = "{% url 'core:quizzes_list' %}"
+    const startedQuizzes = "{% url 'core:quizzes_list_started' %}"
+    const finishedQuizzes = "{% url 'core:quizzes_list_finished' %}"
+
 </script>
 {% endblock %}
