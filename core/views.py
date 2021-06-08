@@ -25,7 +25,7 @@ def quizzes(request):
 
 
 @api_view(["GET", "POST"])
-@authentication_classes([SessionAuthentication])
+# @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def quizzes_started(request):
     if request.method == "GET":
@@ -42,7 +42,7 @@ def quizzes_started(request):
 
 
 @api_view()
-@authentication_classes([SessionAuthentication])
+# @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def quizzes_finished(request):
     queryset = Quiz.objects.filter(answers_quiz__user=request.user).filter(
@@ -53,7 +53,7 @@ def quizzes_finished(request):
 
 
 @api_view(["GET", "POST"])
-@authentication_classes([SessionAuthentication])
+# @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def questions(request, slug):
     if request.method == "GET":
@@ -61,6 +61,8 @@ def questions(request, slug):
             question = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user).get_question()
         except StopIteration:
             return Response({"status": "the questions are over"}, status=status.HTTP_404_NOT_FOUND)
+        except AnswerQuiz.DoesNotExist:
+            return Response({"status": "quiz not started"}, status=status.HTTP_404_NOT_FOUND)
         else:
             serializer = QuestionDTOSerializer(question)
             return Response(serializer.data)
@@ -79,7 +81,7 @@ def questions(request, slug):
 
 
 @api_view(["GET", "PATCH"])
-@authentication_classes([SessionAuthentication])
+# @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def questions_prev(request, slug):
     if request.method == "GET":
@@ -98,7 +100,7 @@ def questions_prev(request, slug):
 
 
 @api_view()
-@authentication_classes([SessionAuthentication])
+# @authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def quiz_score(request, slug):
     answer_quiz = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user)
@@ -107,4 +109,5 @@ def quiz_score(request, slug):
     if not answer_quiz.score:
         answer_quiz.get_score()
         answer_quiz.finished = True
+        answer_quiz.save()
     return Response({"score": answer_quiz.score})
