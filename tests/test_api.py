@@ -151,3 +151,24 @@ def test_empty_question(quizzes_empty, api_client, test_user):
     assert response.data == {"status": "the questions are over"}
     print(response.data)
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_get_score(quiz_id_1_db, test_user, api_client):
+    api_client.login(username="test_user", password="123")
+    user = User.objects.get(username="test_user")
+    quiz = Quiz.objects.first()
+    answer = AnswerQuiz.start_quiz(user, quiz.uuid)
+    response = api_client.get(reverse("core:quiz_score", current_app="core", args=[quiz.slug]))
+    assert response.data == {"status": "questions are not over yet"}
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_get_score_success(quiz_id_1_db, answers_dto_db, test_user, api_client):
+    api_client.login(username="test_user", password="123")
+    quiz = Quiz.objects.first()
+    response = api_client.get(reverse("core:quiz_score", current_app="core", args=[quiz.slug]))
+    score = response.data["score"]
+    assert response.status_code == 200
+    assert score == 1.0

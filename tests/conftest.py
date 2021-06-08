@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 import pytest
-from core.models import Quiz, Question, QuestionChoice, AnswerQuiz
+from core.models import Quiz, Question, QuestionChoice, AnswerQuiz, Answer, AnswerChoice
 from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
 
 
@@ -79,3 +79,31 @@ def fixture_post_answer():
             "2-1-1",
         ],
     }
+
+
+@pytest.fixture(name="answers_dto")
+def fixture_quiz_answers_dto():
+    answers: List[AnswerDTO] = [AnswerDTO("1-1", ["1-1-1"])]
+    return AnswersDTO("1", answers)
+
+
+@pytest.mark.django_db
+@pytest.fixture(name="answers_dto_db")
+def fixture_answers_dto_db(answers_dto):
+    user = User.objects.get(username="test_user")
+    quiz = Quiz.objects.first()
+    answer = AnswerQuiz.start_quiz(user, quiz.uuid)
+    for item in answers_dto.answers:
+        a = Answer.create(item, answer)
+        for choice in item.choices:
+            AnswerChoice(answer=a, text=choice).save()
+
+
+@pytest.mark.django_db
+@pytest.fixture(name="quiz_id_1_db")
+def fixture_quiz_id_1_db(django_db_setup, django_db_blocker, quiz_id_1):
+    quiz = Quiz.create(quiz_id_1)
+    for question in quiz_id_1[2]:
+        q = Question.create(question, quiz)
+        for choice in question[2]:
+            QuestionChoice.create(choice, q)

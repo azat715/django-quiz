@@ -2,7 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 
-from quiz.dto import AnswerDTO, ChoiceDTO, QuestionDTO, QuizDTO
+from quiz.dto import AnswersDTO, AnswerDTO, ChoiceDTO, QuestionDTO, QuizDTO
+from quiz.services import QuizResultService
 
 
 class Quiz(models.Model):
@@ -28,6 +29,9 @@ class Quiz(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+    def astuple(self):
+        return QuizDTO(self.uuid, self.title, [i.astuple() for i in self.questions.all()])
 
 
 class QuestionManager(models.Manager):
@@ -93,7 +97,7 @@ class AnswerQuiz(models.Model):
     """AnswersDTO Database Model"""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    quiz = models.OneToOneField(Quiz, on_delete=models.PROTECT, related_name="answers_quiz")
+    quiz = models.ForeignKey(Quiz, on_delete=models.PROTECT, related_name="answers_quiz")
     score = models.FloatField(blank=True, null=True)
     finished = models.BooleanField(default=False)
 
@@ -145,6 +149,16 @@ class AnswerQuiz(models.Model):
         Answer.objects.filter(answer_quiz=self).last().delete()
         self.post_answer(obj)
 
+    def get_score(self):
+        quiz_dto = self.quiz.astuple()
+        answers_dto = self.astuple()
+        calc = QuizResultService(quiz_dto, answers_dto)
+        self.score = calc.get_result()
+        return self.score
+
+    def astuple(self):
+        return AnswersDTO(self.quiz.uuid, [i.astuple() for i in self.answers.all()])
+
 
 class Answer(models.Model):
     """AnswerDTO Database Model"""
@@ -163,6 +177,9 @@ class Answer(models.Model):
         answer = cls(answer_quiz=answer_quiz, question_uuid=obj.question_uuid)
         answer.save()
         return answer
+
+    def astuple(self):
+        return AnswerDTO(self.question_uuid, [i.text for i in self.choices.all()])
 
 
 class AnswerChoice(models.Model):

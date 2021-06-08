@@ -95,3 +95,16 @@ def questions_prev(request, slug):
             return Response(status=status.HTTP_204_NO_CONTENT)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view()
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def quiz_score(request, slug):
+    answer_quiz = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user)
+    if answer_quiz.quiz.questions.unanswered(answer_quiz.questions_uuid).exists():
+        return Response({"status": "questions are not over yet"}, status=status.HTTP_404_NOT_FOUND)
+    if not answer_quiz.score:
+        answer_quiz.get_score()
+        answer_quiz.finished = True
+    return Response({"score": answer_quiz.score})
