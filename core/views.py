@@ -29,7 +29,9 @@ def quizzes(request):
 @permission_classes([IsAuthenticated])
 def quizzes_started(request):
     if request.method == "GET":
-        queryset = Quiz.objects.filter(answers_quiz__user=request.user)
+        queryset = Quiz.objects.filter(answers_quiz__user=request.user).exclude(
+            answers_quiz__finished=True
+        )
         serializer = QuizSerializer(queryset, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
@@ -71,9 +73,13 @@ def questions(request, slug):
         serializer = AnswerPOSTSerializer(data=request.data)
         if serializer.is_valid():
             answer = serializer.save()
-            res = answer_quiz.post_answer(answer)
-            serializer_response = AnswerSerializer(res)
-            return Response(serializer_response.data, status=status.HTTP_201_CREATED)
+            try:
+                res = answer_quiz.post_answer(answer)
+            except ValueError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                serializer_response = AnswerSerializer(res)
+                return Response(serializer_response.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
@@ -93,8 +99,12 @@ def questions_prev(request, slug):
         serializer = AnswerPOSTSerializer(data=request.data)
         if serializer.is_valid():
             answer = serializer.save()
-            answer_quiz.update_prev_answer(answer)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            try:
+                answer_quiz.update_prev_answer(answer)
+            except ValueError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(status=status.HTTP_204_NO_CONTENT)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
