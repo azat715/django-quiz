@@ -174,6 +174,8 @@ class Answer(models.Model):
 
     @classmethod
     def create(cls, obj: AnswerDTO, answer_quiz):
+        if not obj.question_uuid == answer_quiz.quiz.questions.first():
+            raise ValueError(f"question_uuid: '{obj.question_uuid}' не является валидным")
         answer = cls(answer_quiz=answer_quiz, question_uuid=obj.question_uuid)
         answer.save()
         return answer
