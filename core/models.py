@@ -35,11 +35,11 @@ class Quiz(models.Model):
 
 
 class QuestionManager(models.Manager):
-    def unanswered(self, uuids):
-        return super().get_queryset().exclude(uuid__in=uuids)
+    def unanswered(self, slug, uuids):
+        return super().get_queryset().filter(quiz__slug=slug).exclude(uuid__in=uuids)
 
-    def answered(self, uuids):
-        return super().get_queryset().filter(uuid__in=uuids)
+    def answered(self, slug, uuids):
+        return super().get_queryset().filter(quiz__slug=slug).filter(uuid__in=uuids)
 
 
 class Question(models.Model):
@@ -122,21 +122,15 @@ class AnswerQuiz(models.Model):
         return instanse
 
     def get_question(self) -> QuestionDTO:
-        if self.quiz.questions.unanswered(self.questions_uuid).exists():
+        if Question.objects.unanswered(self.quiz.slug, self.questions_uuid).exists():
             return (
-                self.quiz.questions.unanswered(self.questions_uuid)  # pylint: disable=no-member
-                .first()
-                .astuple()
+                Question.objects.unanswered(self.quiz.slug, self.questions_uuid).first().astuple()
             )
         else:
             raise StopIteration("Вопросы кончились")
 
     def get_prev_question(self) -> QuestionDTO:
-        return (
-            self.quiz.questions.answered(self.questions_uuid)  # pylint: disable=no-member
-            .last()
-            .astuple()
-        )
+        return Question.objects.answered(self.quiz.slug, self.questions_uuid).last().astuple()
 
     def post_answer(self, obj: AnswerDTO):
         answer = Answer.create(obj, self)
@@ -174,8 +168,6 @@ class Answer(models.Model):
 
     @classmethod
     def create(cls, obj: AnswerDTO, answer_quiz):
-        if not obj.question_uuid == answer_quiz.quiz.questions.first().uuid:
-            raise ValueError(f"question_uuid: '{obj.question_uuid}' не является валидным")
         answer = cls(answer_quiz=answer_quiz, question_uuid=obj.question_uuid)
         answer.save()
         return answer

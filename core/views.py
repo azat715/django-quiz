@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from core.models import AnswerQuiz, Quiz
+from core.models import AnswerQuiz, Quiz, Question
 from core.serializers import (
     QuizSerializer,
     AnswerQuizSerializer,
@@ -36,6 +36,12 @@ def quizzes_started(request):
         return Response(serializer.data)
     elif request.method == "POST":
         try:
+            if AnswerQuiz.objects.filter(
+                user=request.user, quiz__uuid=request.data.get("uuid")
+            ).exists():
+                return Response(
+                    {"status": "Викторина уже пройдена"}, status=status.HTTP_400_BAD_REQUEST
+                )
             answer = AnswerQuiz.start_quiz(user=request.user, uuid_quiz=request.data.get("uuid"))
             serializer = AnswerQuizSerializer(answer)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -69,21 +75,15 @@ def questions(request, slug):
             serializer = QuestionDTOSerializer(question)
             return Response(serializer.data)
     elif request.method == "POST":
-        answer_quiz = AnswerQuiz.objects.get(user=request.user)
+        answer_quiz = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user)
         serializer = AnswerPOSTSerializer(data=request.data)
         if serializer.is_valid():
             answer = serializer.save()
-            try:
-                res = answer_quiz.post_answer(answer)
-            except ValueError as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                serializer_response = AnswerSerializer(res)
-                return Response(serializer_response.data, status=status.HTTP_201_CREATED)
+            res = answer_quiz.post_answer(answer)
+            serializer_response = AnswerSerializer(res)
+            return Response(serializer_response.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "PATCH"])
@@ -95,18 +95,13 @@ def questions_prev(request, slug):
         serializer = QuestionDTOSerializer(question)
         return Response(serializer.data)
     elif request.method == "PATCH":
-        answer_quiz = AnswerQuiz.objects.get(user=request.user)
+        answer_quiz = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user)
         serializer = AnswerPOSTSerializer(data=request.data)
         if serializer.is_valid():
             answer = serializer.save()
-            try:
-                answer_quiz.update_prev_answer(answer)
-            except ValueError as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            answer_quiz.update_prev_answer(answer)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view()
@@ -114,7 +109,7 @@ def questions_prev(request, slug):
 @permission_classes([IsAuthenticated])
 def quiz_score(request, slug):
     answer_quiz = AnswerQuiz.objects.get(quiz__slug=slug, user=request.user)
-    if answer_quiz.quiz.questions.unanswered(answer_quiz.questions_uuid).exists():
+    if Question.objects.unanswered(slug=slug, uuids=answer_quiz.questions_uuid).exists():
         return Response({"status": "questions are not over yet"}, status=status.HTTP_404_NOT_FOUND)
     if not answer_quiz.score:
         answer_quiz.get_score()
