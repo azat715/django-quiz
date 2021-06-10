@@ -6,19 +6,26 @@
 
     {% block content %}
     <div x-data="question('/api/quizzes/{{ slug }}')" x-init="fetchQuestion()" class="app">
-        <h4>Вопрос</h4>
-        <form id="form" action="" @submit.prevent="send()">
-            <span x-text="text"></span>
-            <template x-for="choice in choices" :key="choice.uuid">
-                <div>
-                    <input type="checkbox" :id="choice.uuid" name="choice" :value="choice.uuid">
-                    <label :for="choice.uuid" x-text="choice.text"></label>
-                </div>
-            </template>
-            <button type="submit">ОК</button>
-        </form>
-        <button @click="get_prev($event)" :disabled="button_prev">Назад</button>
-        <div x-show="show" x-cloak>
+        <p class="card-title" x-text="text"></p>
+        <div class="w-75 card">
+            <div class="card-body">
+                <form id="form" action="" @submit.prevent="send()">
+                    <template x-for="choice in choices" :key="choice.uuid">
+                        <div class="mb-1 form-check">
+                            <div>
+                                <input class="form-check-input" type="checkbox" :id="choice.uuid" name="choice"
+                                    :value="choice.uuid">
+                                <label class="form-check-label" :for="choice.uuid" x-text="choice.text"></label>
+                            </div>
+                        </div>
+                    </template>
+                    <button class="btn btn-primary" type="button" @click="get_prev($event)"
+                        :disabled="button_prev">Назад</button>
+                    <button class="btn btn-primary" type="submit">ОК</button>
+                </form>
+            </div>
+        </div>
+        <div x-show="show" x-cloak class="modal" tabindex="-1">
             <div @click.away="show = false">
                 <span x-text="res"></span>
             </div>
