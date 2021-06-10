@@ -86,7 +86,56 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+body {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "main aside"
+        "footer footer";
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr 300px;
+    grid-gap: 10px;
+    height: 100vh;
+    margin: 0;
+}
 
+header {
+    grid-area: header;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: block;
+    margin: 20px;
+}
+
+main {
+    grid-area: main;
+}
+
+.address, .logo, aside, .main_wrapper {
+    margin: 10px;
+}
+
+.container_wrapper {
+    max-width: 100%;
+}
+
+aside {
+    grid-area: aside;
+}
+
+footer {
+    grid-area:  footer;
+}
 /* ==========================================================================
    Helper classes
    ========================================================================== */
@@ -174,6 +223,44 @@ textarea {
    These examples override the primary ('mobile first') styles.
    Modify as content requires.
    ========================================================================== */
+
+@media (min-width: 576px) {
+    .main_wrapper {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .main_wrapper  {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .main_wrapper  {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .main_wrapper  {
+        max-width: 1140px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        grid-template-areas:
+            "header"
+            "main"
+            "aside"
+            "footer";
+        grid-template-rows: auto 1fr auto auto;
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 @media only screen and (min-width: 35em) {
   /* Style adjustments for viewports that meet the condition */

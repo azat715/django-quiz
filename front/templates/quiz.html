@@ -1,24 +1,28 @@
 {% extends "./base.html" %}
 
-{% block content %}
-<div x-data="question('/api/quizzes/{{ slug }}')" x-init="fetchQuestion()" class="app">
-    <h4>Вопрос</h4>
-    <form id="form" action="" @submit.prevent="send()">
-        <span x-text="text"></span>
-        <template x-for="choice in choices" :key="choice.uuid">
-            <div>
-                <input type="checkbox" :id="choice.uuid" name="choice" :value="choice.uuid">
-                <label :for="choice.uuid" x-text="choice.text"></label>
+{% block navbar %}
+<li class="nav-item"><a href="{% url 'front:get_quizzes_list' %}">Список викторин</a>
+    {% endblock %}
+
+    {% block content %}
+    <div x-data="question('/api/quizzes/{{ slug }}')" x-init="fetchQuestion()" class="app">
+        <h4>Вопрос</h4>
+        <form id="form" action="" @submit.prevent="send()">
+            <span x-text="text"></span>
+            <template x-for="choice in choices" :key="choice.uuid">
+                <div>
+                    <input type="checkbox" :id="choice.uuid" name="choice" :value="choice.uuid">
+                    <label :for="choice.uuid" x-text="choice.text"></label>
+                </div>
+            </template>
+            <button type="submit">ОК</button>
+        </form>
+        <button @click="get_prev($event)" :disabled="button_prev">Назад</button>
+        <div x-show="show" x-cloak>
+            <div @click.away="show = false">
+                <span x-text="res"></span>
             </div>
-        </template>
-        <button type="submit">ОК</button>
-    </form>
-    <button @click="get_prev($event)" :disabled="button_prev">Назад</button>
-    <div x-show="show" x-cloak>
-        <div @click.away="show = false">
-            <span x-text="res"></span>
         </div>
     </div>
-</div>
 
-{% endblock %}
+    {% endblock %}
