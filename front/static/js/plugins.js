@@ -37,6 +37,10 @@ function getCookie(name) {
   return cookieValue;
 }
 
+const resModal = new bootstrap.Modal(document.getElementById('Result'), {
+  keyboard: false
+})
+
 
 function quizzes() {
   return {
@@ -73,6 +77,7 @@ function quizzes() {
 
 function question(base) {
   return {
+    modal: resModal,
     baseURL: base,
     questionURL: base + '/question',
     scoreURL: base + '/score',
@@ -156,7 +161,7 @@ function question(base) {
         .then(response => response.json())
         .then(data => {
           this.res = data.score;
-          this.show = true;
+          this.modal.show();
         });
     },
     get_prev(event) {
