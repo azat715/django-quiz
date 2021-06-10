@@ -1,0 +1,28 @@
+# comment
+.git
+.vscode
+__pycache__
+pytest_cache
+*.py[cod]
+*$py.class
+
+# pyenv
+python-version
+
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# poetry
+poetry.lock
+pyproject.toml
+
+# db
+db.sqlite3
+
+.gitignore
+.pytest_cache
