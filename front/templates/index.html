@@ -2,43 +2,49 @@
 
 {% block content %}
 
-<div x-data="quizzes()" x-init="fetchQuizzes('/api/quizzes')" class="app">
-    <h4>Список викторин</h4>
-    <button class="btn btn-link" @click="tab = 'all', fetchQuizzes('/api/quizzes')">Все</button>
-    <button class="btn btn-link" @click="tab = 'started', fetchQuizzes('/api/quizzes/started')">Не законченные</button>
-    <button class="btn btn-link" @click="tab = 'finished', fetchQuizzes('/api/quizzes/finished')">Законченные</button>
-    <div class="w-75" x-show="tab === 'all'">
-        <ul class="list-group">
-            <template x-for="quizz in quizzes" :key="quizz.id">
-                <li class="list-group-item">
-                    <span x-text="quizz.title"></span>
-                    <button class="btn btn-primary btn-sm" @click="startQuiz(quizz)">Начать</button>
-                </li>
-            </template>
-        </ul>
-    </div>
-    <div class="w-75" x-show="tab === 'started'">
-        <ul class="list-group">
-            <template x-for="quizz in quizzes" :key="quizz.id">
-                <li class="list-group-item">
-                    <span x-text="quizz.title"></span>
-                    <button class="btn btn-primary btn-sm"
-                        :onclick="`location.href='/quizz/${quizz.slug}'`">Продолжить</button>
-                </li>
+{% block navbar %}
+<li class="nav-item"><a href="{% url 'front:logout' %}">Выход</a>
+    {% endblock %}
 
-            </template>
-        </ul>
-    </div>
-    <div class="w-75" x-show="tab === 'finished'">
-        <ul class="list-group">
-            <template x-for="quizz in quizzes" :key="quizz.id">
-                <li class="list-group-item">
-                    <span x-text="quizz.title"></span>
-                </li>
+    <div x-data="quizzes()" x-init="fetchQuizzes('/api/quizzes')" class="app">
+        <h4>Список викторин</h4>
+        <button class="btn btn-link" @click="tab = 'all', fetchQuizzes('/api/quizzes')">Все</button>
+        <button class="btn btn-link" @click="tab = 'started', fetchQuizzes('/api/quizzes/started')">Не
+            законченные</button>
+        <button class="btn btn-link"
+            @click="tab = 'finished', fetchQuizzes('/api/quizzes/finished')">Законченные</button>
+        <div class="w-75" x-show="tab === 'all'">
+            <ul class="list-group">
+                <template x-for="quizz in quizzes" :key="quizz.id">
+                    <li class="list-group-item">
+                        <span x-text="quizz.title"></span>
+                        <button class="btn btn-primary btn-sm" @click="startQuiz(quizz)">Начать</button>
+                    </li>
+                </template>
+            </ul>
+        </div>
+        <div class="w-75" x-show="tab === 'started'">
+            <ul class="list-group">
+                <template x-for="quizz in quizzes" :key="quizz.id">
+                    <li class="list-group-item">
+                        <span x-text="quizz.title"></span>
+                        <button class="btn btn-primary btn-sm"
+                            :onclick="`location.href='/quizz/${quizz.slug}'`">Продолжить</button>
+                    </li>
 
-            </template>
-        </ul>
-    </div>
-</div>
+                </template>
+            </ul>
+        </div>
+        <div class="w-75" x-show="tab === 'finished'">
+            <ul class="list-group">
+                <template x-for="quizz in quizzes" :key="quizz.id">
+                    <li class="list-group-item">
+                        <span x-text="quizz.title"></span>
+                    </li>
 
-{% endblock %}
+                </template>
+            </ul>
+        </div>
+    </div>
+
+    {% endblock %}
