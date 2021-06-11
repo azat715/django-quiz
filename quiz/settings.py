@@ -136,3 +136,4 @@ REST_FRAMEWORK = {
 }
 
 LOGOUT_REDIRECT_URL = "front:login"
+LOGIN_REDIRECT_URL = "front:get_quizzes_list"
