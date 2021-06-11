@@ -5,6 +5,8 @@ from quiz.services import AnswerDTO
 
 
 class QuizSerializer(serializers.ModelSerializer):
+    finished = serializers.BooleanField(required=False, default=False)
+
     class Meta:
         model = Quiz
         fields = "__all__"

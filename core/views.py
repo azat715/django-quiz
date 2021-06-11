@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import F
 from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -19,9 +20,14 @@ from core.serializers import (
 @authentication_classes([SessionAuthentication])
 @permission_classes([AllowAny])
 def quizzes(request):
-    queryset = Quiz.objects.all()
-    serializer = QuizSerializer(queryset, many=True)
-    return Response(serializer.data)
+    if request.user.is_authenticated:
+        queryset = Quiz.objects.annotate(finished=F("answers_quiz__finished"))
+        serializer = QuizSerializer(queryset, many=True)
+        return Response(serializer.data)
+    else:
+        queryset = Quiz.objects.all()
+        serializer = QuizSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @api_view(["GET", "POST"])

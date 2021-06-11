@@ -18,9 +18,12 @@
                 <template x-for="quizz in quizzes" :key="quizz.id">
                     <li class="list-group-item">
                         <span x-text="quizz.title"></span>
-                        <button class="btn btn-primary btn-sm" @click="startQuiz(quizz)">Начать</button>
+                        <template x-if="!quizz.finished">
+                            <button class="btn btn-primary btn-sm" @click="startQuiz(quizz)">Начать</button>
+                        </template>
                     </li>
                 </template>
+
             </ul>
         </div>
         <div class="w-75" x-show="tab === 'started'">
