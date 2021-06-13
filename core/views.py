@@ -1,19 +1,15 @@
-from django.shortcuts import render
 from django.db.models import F
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from core.models import AnswerQuiz, Quiz, Question
-from core.serializers import (
-    QuizSerializer,
-    AnswerQuizSerializer,
-    QuestionDTOSerializer,
-    AnswerSerializer,
-    AnswerPOSTSerializer,
-)
+from core.models import AnswerQuiz, Question, Quiz
+from core.serializers import (AnswerPOSTSerializer, AnswerQuizSerializer,
+                              AnswerSerializer, QuestionDTOSerializer,
+                              QuizSerializer)
 
 
 @api_view()

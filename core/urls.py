@@ -1,13 +1,7 @@
 from django.urls import path
 
-from core.views import (
-    quizzes,
-    quizzes_started,
-    quizzes_finished,
-    questions,
-    questions_prev,
-    quiz_score,
-)
+from core.views import (questions, questions_prev, quiz_score, quizzes,
+                        quizzes_finished, quizzes_started)
 
 app_name = "core"
 

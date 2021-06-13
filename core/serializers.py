@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from core.models import Quiz, Question, QuestionChoice, AnswerQuiz, AnswerChoice
+from core.models import (AnswerChoice, AnswerQuiz, Question, QuestionChoice,
+                         Quiz)
 from quiz.services import AnswerDTO
 
 
@@ -73,3 +74,6 @@ class AnswerPOSTSerializer(serializers.Serializer):
         choices = validated_data.pop("choices")
         answer = AnswerDTO(validated_data["question_uuid"], choices)
         return answer
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError("AnswerPOSTSerializer не реализовано update")

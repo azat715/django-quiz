@@ -1,13 +1,11 @@
-import pytest
 import json
-from django.urls import reverse
+
+import pytest
+from core.models import Answer, AnswerChoice, AnswerQuiz, Question, Quiz
+from core.serializers import AnswerQuizSerializer, QuestionDTOSerializer, QuizSerializer
 from django.contrib.auth.models import User
-
-from core.models import AnswerQuiz, Question, Quiz, Answer, AnswerChoice
-from core.serializers import QuizSerializer, AnswerQuizSerializer, QuestionDTOSerializer
-from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
-
-from .conftest import fixture_api_client, fixture_test_user, fixture_quiz_id_2
+from django.urls import reverse
+from quiz.dto import QuizDTO
 
 
 @pytest.fixture(name="list_quizzes")
@@ -41,7 +39,7 @@ def test_started_quiz(list_quizzes, api_client, test_user):  # pylint: disable=u
     api_client.login(username="test_user", password="123")
     response = api_client.get(reverse("core:quizzes_list_started", current_app="core"))
     user = User.objects.get(username="test_user")
-    quizzes = Quiz.objects.filter(answers_quiz__user=user)
+    quizzes = Quiz.objects.filter(answers_quiz__user=user).exclude(answers_quiz__finished=True)
     serializer = QuizSerializer(quizzes, many=True)
     print(response.data)
     assert response.data == serializer.data

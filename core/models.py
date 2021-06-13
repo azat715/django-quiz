@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 
-from quiz.dto import AnswersDTO, AnswerDTO, ChoiceDTO, QuestionDTO, QuizDTO
+from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
 from quiz.services import QuizResultService
 
 
@@ -13,10 +13,10 @@ class Quiz(models.Model):
     title = models.CharField(max_length=50)
     slug = models.SlugField(null=False, unique=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Quiz({self.uuid}, {self.title}, {self.slug})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @classmethod
@@ -30,7 +30,7 @@ class Quiz(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
-    def astuple(self):
+    def astuple(self) -> QuizDTO:
         return QuizDTO(self.uuid, self.title, [i.astuple() for i in self.questions.all()])
 
 
@@ -51,10 +51,10 @@ class Question(models.Model):
 
     objects = QuestionManager()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Question({self.uuid}, {self.text})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @classmethod
@@ -63,7 +63,7 @@ class Question(models.Model):
         question.save()
         return question
 
-    def astuple(self):
+    def astuple(self) -> QuestionDTO:
         return QuestionDTO(self.uuid, self.text, [i.astuple() for i in self.choices.all()])
 
 
@@ -75,10 +75,10 @@ class QuestionChoice(models.Model):
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "QuestionChoice({self.uuid}, {self.text}, {self.is_correct})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @classmethod
@@ -89,7 +89,7 @@ class QuestionChoice(models.Model):
         question_choice.save()
         return question_choice
 
-    def astuple(self):
+    def astuple(self) -> QuestionDTO:
         return ChoiceDTO(self.uuid, self.text, self.is_correct)
 
 
@@ -101,10 +101,10 @@ class AnswerQuiz(models.Model):
     score = models.FloatField(blank=True, null=True)
     finished = models.BooleanField(default=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "AnswerQuiz({self.score}, {self.finished})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @property
@@ -112,7 +112,7 @@ class AnswerQuiz(models.Model):
         return self.answers.values_list("question_uuid")
 
     @classmethod
-    def start_quiz(cls, user, uuid_quiz):
+    def start_quiz(cls, user, uuid_quiz: str):
         try:
             quiz = Quiz.objects.get(uuid=uuid_quiz)
         except Quiz.DoesNotExist as e:  # pylint: disable=invalid-name
@@ -150,7 +150,7 @@ class AnswerQuiz(models.Model):
         self.score = calc.get_result()
         return self.score
 
-    def astuple(self):
+    def astuple(self) -> AnswerDTO:
         return AnswersDTO(self.quiz.uuid, [i.astuple() for i in self.answers.all()])
 
 
@@ -160,10 +160,10 @@ class Answer(models.Model):
     answer_quiz = models.ForeignKey(AnswerQuiz, on_delete=models.CASCADE, related_name="answers")
     question_uuid = models.CharField(max_length=10)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Answer({self.question_uuid})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @classmethod
@@ -172,7 +172,7 @@ class Answer(models.Model):
         answer.save()
         return answer
 
-    def astuple(self):
+    def astuple(self) -> AnswerDTO:
         return AnswerDTO(self.question_uuid, [i.text for i in self.choices.all()])
 
 
@@ -182,8 +182,8 @@ class AnswerChoice(models.Model):
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="choices")
     text = models.CharField(max_length=255)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "AnswerChoice({self.text})".format(self=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()

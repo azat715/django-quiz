@@ -1,15 +1,9 @@
 from collections import OrderedDict
-from typing import List
+
 import pytest
-
-from django.contrib.auth.models import User
-from rest_framework.renderers import JSONRenderer
-
-
-from core.serializers import QuestionDTOSerializer, AnswerSerializer, AnswerPOSTSerializer
-from core.models import Quiz, AnswerQuiz, Answer, AnswerChoice, Question, QuestionChoice
-from quiz.services import AnswerDTO
-from quiz.dto import AnswerDTO, AnswersDTO
+from core.models import AnswerQuiz, Quiz
+from core.serializers import AnswerPOSTSerializer, QuestionDTOSerializer
+from quiz.dto import AnswerDTO
 
 
 @pytest.fixture(name="question_json")

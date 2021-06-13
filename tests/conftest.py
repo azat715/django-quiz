@@ -1,11 +1,11 @@
 from typing import List
 
-from django.contrib.auth.models import User
-from rest_framework.test import APIClient
-
 import pytest
-from core.models import Quiz, Question, QuestionChoice, AnswerQuiz, Answer, AnswerChoice
+from core.models import (Answer, AnswerChoice, AnswerQuiz, Question,
+                         QuestionChoice, Quiz)
+from django.contrib.auth.models import User
 from quiz.dto import AnswerDTO, AnswersDTO, ChoiceDTO, QuestionDTO, QuizDTO
+from rest_framework.test import APIClient
 
 
 @pytest.fixture(name="quiz_id_1")
