@@ -83,12 +83,10 @@ function question(base) {
     scoreURL: base + '/score',
     questionPrevURL: base + '/question' + '/prev',
     csrftoken: getCookie('csrftoken'),
-    answer: null,
     choices: [],
     text: "",
     question_uuid: "",
     res: "",
-    show: false,
     prev: false,
     button_prev: true,
     fetchQuestion() {
@@ -114,6 +112,9 @@ function question(base) {
     send() {
       form = document.getElementById("form");
       formData = new FormData(form);
+      if (formData.getAll("choice").length == 0) {
+        return false
+      }
       let data = {
         "question_uuid": this.question_uuid,
         "choices": formData.getAll("choice")
@@ -171,6 +172,5 @@ function question(base) {
       this.button_prev = true
       this.fetchQuestion()
     }
-
   }
 }
