@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
@@ -144,8 +146,18 @@ class AnswerQuiz(models.Model):
         self.post_answer(obj)
 
     def get_score(self):
-        quiz_dto = self.quiz.astuple()
-        answers_dto = self.astuple()
+        queryset = QuestionChoice.objects.select_related("question").filter(
+            question__quiz=self.quiz
+        )
+        questions = []
+        for key, group in groupby(queryset, key=lambda x: x.question):
+            choices = []
+            for choice in group:
+                choices.append(ChoiceDTO(choice.uuid, choice.text, choice.is_correct))
+            questions.append(QuestionDTO(key.uuid, key.text, choices))
+
+        quiz_dto: QuizDTO = QuizDTO(self.quiz.uuid, self.quiz.title, questions)
+        answers_dto = self.astuple()  # необходимо выделить таблицу AnswersDTO как Quiz
         calc = QuizResultService(quiz_dto, answers_dto)
         self.score = calc.get_result()
         return self.score
